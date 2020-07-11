@@ -117,4 +117,4 @@ std::string buf_get_text(const uint8_t* buf, uint32_t addr, uint32_t len)
             spaces, ADDR, instr, read16(scriptaddr-2), addr,
             read24(addr)&0x800000 ? "compressed" : "uncompressed",
             spaces, get_text(addr).c_str());
-#emdof
+#endif
