@@ -108,3 +108,13 @@ std::string buf_get_text(const uint8_t* buf, uint32_t addr, uint32_t len)
     
     return info+printable;
 }
+
+#if 0 // sample use
+    case 0x51: // set text from word list in next two bytes + 91d000
+        addr = 0x91d000 + read16(scriptaddr); scriptaddr+=2;
+        printf("%s[" ADDRFMT "] (%02x) SHOW TEXT %04x FROM 0x%06x %s WINDOWED, WAIT FOR B-PRESS\n"
+               "%s                %s\n",
+            spaces, ADDR, instr, read16(scriptaddr-2), addr,
+            read24(addr)&0x800000 ? "compressed" : "uncompressed",
+            spaces, get_text(addr).c_str());
+#emdof
