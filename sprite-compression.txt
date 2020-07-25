@@ -1,0 +1,27 @@
+sprite "blocks" are 16x16 pixels x 4bit
+sprite "block" data pointers/offsets are 23bit, stored at $ec0000+x
+msbit set = compressed, msbit clear = uncompressed
+actual data is at $d90000 + pointer/offset
+uncompressed data: copy 128 byte block from rom
+compressed data: will result in a 128 byte block written to ram
+
+Actual compression scheme:
+read 1 byte "info":
+  8bit in input will result in 8 * 2byte (8 words) in output
+  lsbit ^= first word .. msbit ^= last word
+  bit value:
+    0 = read next 2 byte (1 word) and copy as-is (advance input stream by 2)
+    1 = next 2 byte (1 word) zero (don't advance input stream)
+repeat 8 times -> 8*8 words = 128 B
+
+
+In code:
+1 byte "info":
+  4 * 2bit in input will result in 4 * 4byte in output
+  2 lsbit ^= first 4 byte .. 2 msbit ^= last 4 byte
+  2 bit value:
+    00 = read next 4 byte and copy as-is (advance input stream by 4)
+    01 = next 2 byte zero, next 2 byte copy as-is (advance input stream by 2)
+    10 = next 2 byte copy as-is, next 2 byte zero (advance input stream by 2)
+    11 = next 4 byte are all zero (don't advance input stream)
+loop-unrolled 8 times -> 128 B
