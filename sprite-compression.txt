@@ -1,9 +1,14 @@
-sprite "blocks" are 16x16 pixels x 4bit
+16x16 sprite "blocks" are 16x16 pixels x 4bit
 sprite "block" data pointers/offsets are 23bit, stored at $ec0000+x
 msbit set = compressed, msbit clear = uncompressed
 actual data is at $d90000 + pointer/offset
 uncompressed data: copy 128 byte block from rom
 compressed data: will result in a 128 byte block written to ram
+
+8x8 sprite "blocks" are 8x8 pixels x 4bit
+works the same as 16x16, but only 32 bytes in size
+they have different IDs (ie. we have 16x16 block 0 and 8x8 block 0)
+offsets are stored at $d80000, data is at $d10000 + offset
 
 Actual compression scheme:
 read 1 byte "info":
