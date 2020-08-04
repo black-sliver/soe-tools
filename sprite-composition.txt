@@ -22,7 +22,7 @@ do not cross $xx8000 because of addressing mode. The last "sprite info" in a
 bank will either end in a sprite with count=0 or end at an addres that can't
 fit any more sprite infos before $xx8000 (addr&0xffff+2>=0x8000).
 The next "sprite info" will then be at byte $0001 of the next bank:
-  ie. $ca7efce -> $cb0001
+  ie. $ca7fce -> $cb0001
 
 It is unknown if data stored in $ca0000..$ca0002 and $xx0000 has a meaning,
 but the game seems to use absolute addresses to "sprite info" structs, so
