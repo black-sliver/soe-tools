@@ -1,0 +1,30 @@
+Actual "game sprites" are composed of multiple "snes sprites" that are referred
+to as "blocks" here.
+The blocks are loaded from ROM on-demand, the composition data is transfered
+from RAM to OAM on each vblank.
+
+Each composition ("sprite info") block consists of
+1 byte count of blocks
+1 byte offset of blocks section
+N bytes unknown (N = offset - 2)
+count *
+  1 byte flags
+  1 byte X offset (signed)
+  1 byte Y offset (signed)
+  2 byte block index
+
+block index points to 16x16 block list if lsbit is set in flags
+and points to 8x8 block list if lsbit is not set in flags
+see sprite-compression.txt for blocks
+
+In the NTSC ROM the first "sprite info" appears to be at $ca0003, sprite infos
+do not cross $xx8000 because of addressing mode. The last "sprite info" in a
+bank will either end in a sprite with count=0 or end at an addres that can't
+fit any more sprite infos before $xx8000 (addr&0xffff+2>=0x8000).
+The next "sprite info" will then be at byte $0001 of the next bank:
+  ie. $ca7efce -> $cb0001
+
+It is unknown if data stored in $ca0000..$ca0002 and $xx0000 has a meaning,
+but the game seems to use absolute addresses to "sprite info" structs, so
+placement rules above are empirical.
+
