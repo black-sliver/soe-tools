@@ -9,7 +9,7 @@
 /* NOTE: these defines may be different for non-US */
 #define LIST_START 0x0e8000 /* start of ring menu item pointer list */
 #define LIST_END   0x0e8143 /* end of ring menu item pointer list */
-#define ITEM_START 0x0e0000 /* base address for ring menu items pointers */
+#define ITEM_START 0x0e0000 /* base address for ring menu item pointers */
 #define TEXT_START 0x040000 /* base address for text pointers */
 #define ICON_START 0x040000 /* base address for icon pointers */
 
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
         /* at q:
             2 bytes text pointer (offset to TEXT_START)
             2 bytes icon pointer (actually pointer to animation script, see stream-doc 2020-12-03)
-            2 bytes flags an palette (icon does not have a pallette attached?)
+            2 bytes flags and palette (icon does not have a pallette attached?)
             2 bytes action id (this is basically spell_nr*2 for spells)
         */
         uint32_t textp = TEXT_START + read16(q+0);
