@@ -1,0 +1,62 @@
+# SoE background tile compression algorithm
+# kudos to darkmoon2321 and bumpy for looking into this
+
+24bit pointer to first tile at 0xee0000 (ROM 0x2e0000) in NTSC,
+then every 3 bytes the next. Each tile is 16x16 (4x 8x8), 4bpp.
+
+At pointer destination:
+
+1 byte control byte
+
+control & 0x80: is compressed
+
+uncompressed:
+  control&0x7f: data word count - 1 (i.e. add 1)
+      (seems to be invalid if > 0x3f (0x40 bit set))
+  copy <data word count> words from source to dest
+  repeat last word until all 64 words (= 128 bytes = 16x16 4bpp pixels) are filled
+
+compressed:
+  control&0x7f: offset of data block == size of command block in bytes - 1
+  
+  -> command block starts at addr+1
+  -> data block starts at addr + <offset of data block>
+  
+  while output < 128 bytes:
+    read byte from data block -> group compression indicators
+    for bit in <group compression indicators, msbit first>:
+      bit cleared: uncompressed word
+        copy word from data block to tile, advance both streams
+      bit set: compressed group
+        read 4 bits (msb first) from command block -> group compression type
+          switch <group compression type>
+             0: write word 0x0000 (bytes [00,00])
+             1: write word 0x00ff (bytes [ff,00])
+             2: write word 0xff00 (bytes [00,ff])
+             3: write word 0xffff (bytes [ff,ff])
+             4: write word 0x00** (bytes [**,00])
+                ** = read 1 byte from data block
+             5: write word 0xff** (bytes [**,ff])
+                ** = read 1 byte from data block
+             6: write word 0x**00 (bytes [00,**])
+                ** = read 1 byte from data block
+             7: write word 0x**ff (bytes [ff,**])
+                ** = read 1 byte from data block
+             8: write word 0x**** (bytes [**,**])
+                ** = read 1 byte from data block
+             9: repeat previous word
+            10: repeat previous word twice
+            11: repeat previous word 3 times
+            12: repeat previous word 4+N times
+                N = read 4 bits from command block (msbit first)
+                (previous word is 0 if no word has been written yet)
+            13: write word 0x**RR (bytes [RR,**])
+                ** = read 1 byte from data block
+                RR = previous word & 0x00ff
+            14: write word 0xRR** (bytes [**,RR])
+                ** = read 1 byte from data block
+                RR = previous word & 0xff00
+            15: write word 0x^^** (bytes [**,^^)]
+                ** = read 1 byte from data block
+                ^^ = bitwise inverse of **
+
