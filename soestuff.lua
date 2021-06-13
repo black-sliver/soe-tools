@@ -1,4 +1,4 @@
-﻿-- configuration --
+-- configuration --
 cheat = false
 show_tiles = false
 show_mapdata = true
@@ -92,8 +92,8 @@ local fonth = 1
 -----------------------------------------------
 -- snes9x Bizhawk compatibility layer by Nethraz
 -- + mesen compatibility layer by black_sliver
-if emu and bizstring == nil then
-  -- detect mesen by existance of 'emu'
+if emu and emu.memType ~= nil and bizstring == nil then
+  -- detect mesen by existance of emu.memType
   fontw = 2 -- font is bigger in mesen
   fonth = 2 -- font is bigger in mesen
   is_mesen = true
@@ -186,8 +186,12 @@ if emu and bizstring == nil then
     end
   end
   gui.drawBox = function(x1,y1,x2,y2,outline_color,fill_color)
-    if x2<x1 then; local tmp=x1; x1=x2; x2=tmp; end
-    if y2<y1 then; local tmp=y1; y1=y2; y2=tmp; end
+    if x2<x1 then
+        local tmp=x1; x1=x2; x2=tmp
+    end
+    if y2<y1 then
+        local tmp=y1; y1=y2; y2=tmp
+    end
     return gui.drawRectangle(x1,y1,x2-x1+1,y2-y1+1,outline_color,fill_color)
   end
   event.onframeend = function(luaf)
@@ -229,7 +233,7 @@ elseif not event then
   end
   event = {}
   event.onframeend = function(luaf,name)
-    local on_gui_update_old = gui.register()
+    local on_gui_update_old = gui.register(nil)
     local function on_gui_update_new()
       if on_gui_update_old then
         on_gui_update_old()
@@ -357,7 +361,7 @@ local function load_sprite(idx)
   for i=0, (32 - 1) do
      --console.write(string.format("%d :  %d", bytesname[i], tonumber(bytesname[i], 16)))
      --console.write('-')
-     if bytesname[i] == 0 then
+     if bytesname[i] == 0 or bytesname[i] == nil then
         break
      end
      strname = strname .. string.char(bytesname[i])
